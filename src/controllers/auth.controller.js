@@ -4,7 +4,7 @@ import expressJwt from "express-jwt";
 import config from "./../config/config";
 
 const signin = (req, res) => {
-  User.findOne({ email: req.body.email }, (err, user) => {
+  User.findOne({ 'email': req.body.email }, (err, user) => {
     if (err || !user) {
       return res.status(401).json({ error: "User not found" });
     }
@@ -15,7 +15,7 @@ const signin = (req, res) => {
 
     const token = jwt.sign({ _id: user._id }, config.secret);
 
-    res.cookie("token", token, { expire: new Date() + 9999 });
+    res.cookie("token", token, { expire: new Date() + 999 });
 
     return res.status(200).json({
       token,
@@ -32,7 +32,7 @@ const signout = (req, res) => {
 const requireSignin = expressJwt({
   secret: config.secret,
   algorithms: ["HS256"],
-  userProperty: "auth",
+  userProperty: "auth"
 });
 
 const hasAuthorization = (req, res, next) => {

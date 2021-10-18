@@ -15,16 +15,17 @@ const UserSchame = new mongoose.Schema({
     required: "Email is required",
   },
   created: {
-      type: Date,
-      default: Date.now
-  }, 
-  hashed_password:{
+    type: Date,
+    default: Date.now,
+  },
+  hashed_password: {
     type: String,
     required: "Password is required",
-  }
-  
+  },
+  salt: String,
 });
-UserSchame.virtual('password').set(function (password) {
+UserSchame.virtual("password")
+  .set(function (password) {
     this._password = password;
     this.salt = this.makeSalt();
     this.hashed_password = this.encryptPassword(password);
@@ -33,7 +34,7 @@ UserSchame.virtual('password').set(function (password) {
     return this._password;
   });
 
-  UserSchame.methods = {
+UserSchame.methods = {
   authenticate: function (plainText) {
     return this.encryptPassword(plainText) === this.hashed_password;
   },
@@ -46,11 +47,11 @@ UserSchame.virtual('password').set(function (password) {
         .digest("hex");
     } catch (err) {
       console.log(err);
-      return '';
+      return "";
     }
   },
   makeSalt: function () {
-    return Math.round(new Date().valueOf() * Math.random()) + '';
+    return Math.round(new Date().valueOf() * Math.random()) + "";
   },
 };
 UserSchame.path("hashed_password").validate(function (v) {
@@ -61,6 +62,5 @@ UserSchame.path("hashed_password").validate(function (v) {
     this.invalidate("password", "Password is required");
   }
 }, null);
-
 
 export default mongoose.model("User", UserSchame);
