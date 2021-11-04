@@ -53,9 +53,21 @@ const update = (req, res, next) => {
   let user = req.profile;
   let data = req.body;
 
+  if (!data.password) {
+    return res.status(400).json({ error: "Password is required" });
+  }
+
   if (data.password !== "") {
     data.hashed_password = encryptPassword(data.password, user.salt);
     delete data.password;
+  }
+
+  if (!data.name) {
+    return res.status(400).json({ error: "Name is required" });
+  }
+
+  if (!data.email) {
+    return res.status(400).json({ error: "Email is required" });
   }
 
   user = _.extend(user, data);
