@@ -6,7 +6,11 @@ import template from "./template";
 import userRoutes from "./routers/user.routes";
 import authRoutes from "./routers/auth.routes";
 
+const cookieParser = require("cookie-parser");
+
+
 const app = express();
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(compress());

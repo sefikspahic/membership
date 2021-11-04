@@ -1,7 +1,8 @@
 import User from "../models/user.model";
 import jwt from "jsonwebtoken";
-import expressJwt from "express-jwt";
 import config from "./../config/config";
+var expressJwt = require('express-jwt');
+
 
 const signin = (req, res) => {
   User.findOne({ 'email': req.body.email }, (err, user) => {
@@ -13,7 +14,7 @@ const signin = (req, res) => {
       return res.status(400).json({ error: "Email and password don't match" });
     }
 
-    const token = jwt.sign({ _id: user._id }, config.secret);
+    const token = jwt.sign({exp: Math.floor(Date.now() / 1000) + (60 * 60), _id: user._id }, config.secret);
 
     res.cookie("token", token, { expire: new Date() + 999 });
 
@@ -25,21 +26,22 @@ const signin = (req, res) => {
 };
 
 const signout = (req, res) => {
-  res.clearCokkie("token");
-  res.status(200).json({ message: "User signed out" });
+  return res
+      .clearCookie("token")
+      .status(200)
+      .json({ message: "Successfully logged out" });
+};
+
+const hasAuthorization = (req, res, next) => {
+  const authorized = req.profile && req.auth && req.profile._id.equals(req.auth._id);
+  if (!authorized) return res.status(403).json('Not authorized');
+  next();
 };
 
 const requireSignin = expressJwt({
   secret: config.secret,
-  algorithms: ["HS256"],
-  userProperty: "auth"
-});
+  algorithms: ['HS256'],
+  userProperty: 'auth'
+})
 
-const hasAuthorization = (req, res, next) => {
-  const authorized = req.profile && req.auth && req.profile._id == req.auth._id;
-  if (!authorized)
-    return res.status(403).json({ error: "User is not authorized" });
-  next();
-};
-
-export default { signin, signout, requireSignin, hasAuthorization };
+export default { signin, signout, hasAuthorization, requireSignin };
