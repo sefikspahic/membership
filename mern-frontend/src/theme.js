@@ -20,4 +20,5 @@ const theme = createTheme({
     type: "light",
   },
 });
+
 export default theme;
